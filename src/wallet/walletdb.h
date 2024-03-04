@@ -1,19 +1,20 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2015-2017 The Bitcoin Unlimited developers
-// Copyright (c) 2017 The Bitcoin developers
-// Distributed under the MIT software license, see the accompanying
+// Copyright (c) 2009-2013 The Bitcoin developers
+// Copyright (c) 2016-2019 The PIVX developers
+// Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_WALLET_WALLETDB_H
-#define BITCOIN_WALLET_WALLETDB_H
+#ifndef BITCOIN_WALLETDB_H
+#define BITCOIN_WALLETDB_H
 
 #include "amount.h"
-#include "key.h"
-#include "primitives/transaction.h"
-#include "script/standard.h" // for CTxDestination
 #include "wallet/db.h"
 #include "key.h"
+#include "keystore.h"
+#include "znwc/zerocoin.h"
+#include "libzerocoin/Accumulator.h"
+#include "libzerocoin/Denominations.h"
+#include "znwc/znwctracker.h"
 
 #include <list>
 #include <stdint.h>
@@ -21,22 +22,23 @@
 #include <utility>
 #include <vector>
 
-static const bool DEFAULT_FLUSHWALLET = true;
-
 class CAccount;
 class CAccountingEntry;
+class CBitcoinAddress;
 struct CBlockLocator;
 class CKeyPool;
 class CMasterKey;
 class CScript;
 class CWallet;
 class CWalletTx;
+class CDeterministicMint;
+class CZerocoinMint;
+class CZerocoinSpend;
 class uint160;
 class uint256;
 
 /** Error statuses for the wallet database */
-enum DBErrors
-{
+enum DBErrors {
     DB_LOAD_OK,
     DB_CORRUPT,
     DB_NONCRITICAL_ERROR,
@@ -45,45 +47,12 @@ enum DBErrors
     DB_NEED_REWRITE
 };
 
-/* simple HD chain data model */
-class CHDChain
-{
-public:
-    uint32_t nExternalChainCounter;
-    CKeyID masterKeyID; //!< master key hash160
-
-    static const int CURRENT_VERSION = 1;
-    int nVersion;
-
-    CHDChain() { SetNull(); }
-    ADD_SERIALIZE_METHODS;
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
-    {
-        READWRITE(this->nVersion);
-        nVersion = this->nVersion;
-        READWRITE(nExternalChainCounter);
-        READWRITE(masterKeyID);
-    }
-
-    void SetNull()
-    {
-        nVersion = CHDChain::CURRENT_VERSION;
-        nExternalChainCounter = 0;
-        masterKeyID.SetNull();
-    }
-};
-
 class CKeyMetadata
 {
 public:
-    static const int VERSION_BASIC=1;
-    static const int VERSION_WITH_HDDATA=10;
-    static const int CURRENT_VERSION=VERSION_WITH_HDDATA;
+    static const int CURRENT_VERSION = 1;
     int nVersion;
     int64_t nCreateTime; // 0 means unknown
-    std::string hdKeypath; //optional HD/bip32 keypath
-    CKeyID hdMasterKeyID; //id of the HD masterkey used to derive this key
 
     CKeyMetadata()
     {
@@ -91,63 +60,72 @@ public:
     }
     CKeyMetadata(int64_t nCreateTime_)
     {
-        SetNull();
+        nVersion = CKeyMetadata::CURRENT_VERSION;
         nCreateTime = nCreateTime_;
     }
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    {
         READWRITE(this->nVersion);
         nVersion = this->nVersion;
         READWRITE(nCreateTime);
-        if (this->nVersion >= VERSION_WITH_HDDATA)
-        {
-            READWRITE(hdKeypath);
-            READWRITE(hdMasterKeyID);
-        }
     }
 
     void SetNull()
     {
         nVersion = CKeyMetadata::CURRENT_VERSION;
         nCreateTime = 0;
-        hdKeypath.clear();
-        hdMasterKeyID.SetNull();
     }
 };
 
-/** Access to the wallet database */
+/** Access to the wallet database (wallet.dat) */
 class CWalletDB : public CDB
 {
 public:
-    CWalletDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnClose = true) : CDB(strFilename, pszMode, fFlushOnClose)
+    CWalletDB(const std::string& strFilename, const char* pszMode = "r+") : CDB(strFilename, pszMode)
     {
     }
 
-    bool WriteName(const CTxDestination &address, const std::string &strName);
-    bool EraseName(const CTxDestination &address);
+    bool WriteName(const std::string& strAddress, const std::string& strName);
+    bool EraseName(const std::string& strAddress);
 
-    bool WritePurpose(const CTxDestination &address, const std::string &purpose);
-    bool ErasePurpose(const CTxDestination &address);
+    bool WritePurpose(const std::string& strAddress, const std::string& purpose);
+    bool ErasePurpose(const std::string& strAddress);
 
-    bool WriteTx(const CWalletTx& wtx);
+    bool WriteTx(uint256 hash, const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
-    bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
-    bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
+    bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata& keyMeta);
+    bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata& keyMeta);
     bool WriteMasterKey(unsigned int nID, const CMasterKey& kMasterKey);
+
+    bool WriteAutoConvertKey(const CBitcoinAddress& btcAddress);
+    void LoadAutoConvertKeys(std::set<CBitcoinAddress>& setAddresses);
 
     bool WriteCScript(const uint160& hash, const CScript& redeemScript);
 
-    bool WriteWatchOnly(const CScript &script);
-    bool EraseWatchOnly(const CScript &script);
+    bool WriteWatchOnly(const CScript& script);
+    bool EraseWatchOnly(const CScript& script);
+
+    bool WriteMultiSig(const CScript& script);
+    bool EraseMultiSig(const CScript& script);
 
     bool WriteBestBlock(const CBlockLocator& locator);
     bool ReadBestBlock(CBlockLocator& locator);
 
     bool WriteOrderPosNext(int64_t nOrderPosNext);
+
+    // presstab
+    bool WriteStakeSplitThreshold(uint64_t nStakeSplitThreshold);
+    bool WriteMultiSend(std::vector<std::pair<std::string, int> > vMultiSend);
+    bool EraseMultiSend(std::vector<std::pair<std::string, int> > vMultiSend);
+    bool WriteMSettings(bool fMultiSendStake, bool fMultiSendMasternode, int nLastMultiSendHeight);
+    bool WriteMSDisabledAddresses(std::vector<std::string> vDisabledAddresses);
+    bool EraseMSDisabledAddresses(std::vector<std::string> vDisabledAddresses);
+    bool WriteAutoCombineSettings(bool fEnable, CAmount nCombineThreshold);
 
     bool WriteDefaultKey(const CPubKey& vchPubKey);
 
@@ -159,15 +137,16 @@ public:
 
     /// This writes directly to the database, and will not update the CWallet's cached accounting entries!
     /// Use wallet.AddAccountingEntry instead, to write *and* update its caches.
-    bool WriteAccountingEntry(const uint64_t nAccEntryNum, const CAccountingEntry &acentry);
-    bool WriteAccountingEntry_Backend(const CAccountingEntry &acentry);
-    bool ReadAccount(const std::string &strAccount, CAccount &account);
-    bool WriteAccount(const std::string &strAccount, const CAccount &account);
+    bool WriteAccountingEntry_Backend(const CAccountingEntry& acentry);
+
+    bool ReadAccount(const std::string& strAccount, CAccount& account);
+    bool WriteAccount(const std::string& strAccount, const CAccount& account);
 
     /// Write destination data key,value tuple to database
-    bool WriteDestData(const CTxDestination &address, const std::string &key, const std::string &value);
+    bool WriteDestData(const std::string& address, const std::string& key, const std::string& value);
     /// Erase destination data tuple from wallet database
-    bool EraseDestData(const CTxDestination &address, const std::string &key);
+    bool EraseDestData(const std::string& address, const std::string& key);
+
     CAmount GetAccountCreditDebit(const std::string& strAccount);
     void ListAccountCreditDebit(const std::string& strAccount, std::list<CAccountingEntry>& acentries);
 
@@ -175,18 +154,59 @@ public:
     DBErrors LoadWallet(CWallet* pwallet);
     DBErrors FindWalletTx(CWallet* pwallet, std::vector<uint256>& vTxHash, std::vector<CWalletTx>& vWtx);
     DBErrors ZapWalletTx(CWallet* pwallet, std::vector<CWalletTx>& vWtx);
-    DBErrors ZapSelectTx(CWallet* pwallet, std::vector<uint256>& vHashIn, std::vector<uint256>& vHashOut);
-    static bool Recover(CDBEnv& dbenv, const std::string& filename, bool fOnlyKeys);
-    static bool Recover(CDBEnv& dbenv, const std::string& filename);
+    static bool Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys);
+    static bool Recover(CDBEnv& dbenv, std::string filename);
 
-    //! write the hdchain model (external chain child index counter)
-    bool WriteHDChain(const CHDChain& chain);
+    bool WriteDeterministicMint(const CDeterministicMint& dMint);
+    bool ReadDeterministicMint(const uint256& hashPubcoin, CDeterministicMint& dMint);
+    bool EraseDeterministicMint(const uint256& hashPubcoin);
+    bool WriteZerocoinMint(const CZerocoinMint& zerocoinMint);
+    bool EraseZerocoinMint(const CZerocoinMint& zerocoinMint);
+    bool ReadZerocoinMint(const CBigNum &bnPubcoinValue, CZerocoinMint& zerocoinMint);
+    bool ReadZerocoinMint(const uint256& hashPubcoin, CZerocoinMint& mint);
+    bool ArchiveMintOrphan(const CZerocoinMint& zerocoinMint);
+    bool ArchiveDeterministicOrphan(const CDeterministicMint& dMint);
+    bool UnarchiveZerocoinMint(const uint256& hashPubcoin, CZerocoinMint& mint);
+    bool UnarchiveDeterministicMint(const uint256& hashPubcoin, CDeterministicMint& dMint);
+    std::list<CZerocoinMint> ListMintedCoins();
+    std::list<CDeterministicMint> ListDeterministicMints();
+    std::list<CZerocoinSpend> ListSpentCoins();
+    std::list<CBigNum> ListSpentCoinsSerial();
+    std::list<CZerocoinMint> ListArchivedZerocoins();
+    std::list<CDeterministicMint> ListArchivedDeterministicMints();
+    bool WriteZerocoinSpendSerialEntry(const CZerocoinSpend& zerocoinSpend);
+    bool EraseZerocoinSpendSerialEntry(const CBigNum& serialEntry);
+    bool ReadZerocoinSpendSerialEntry(const CBigNum& bnSerial);
+    bool WriteCurrentSeedHash(const uint256& hashSeed);
+    bool ReadCurrentSeedHash(uint256& hashSeed);
+    bool WriteZNWCSeed(const uint256& hashSeed, const vector<unsigned char>& seed);
+    bool ReadZNWCSeed(const uint256& hashSeed, vector<unsigned char>& seed);
+    bool ReadZNWCSeed_deprecated(uint256& seed);
+    bool EraseZNWCSeed();
+    bool EraseZNWCSeed_deprecated();
+
+    bool WriteZNWCCount(const uint32_t& nCount);
+    bool ReadZNWCCount(uint32_t& nCount);
+    std::map<uint256, std::vector<pair<uint256, uint32_t> > > MapMintPool();
+    bool WriteMintPoolPair(const uint256& hashMasterSeed, const uint256& hashPubcoin, const uint32_t& nCount);
+
+    void LoadPrecomputes(std::list<std::pair<uint256, CoinWitnessCacheData> >& itemList, std::map<uint256, list<std::pair<uint256, CoinWitnessCacheData> >::iterator>& itemMap);
+    void LoadPrecomputes(set<uint256> setHashes);
+    void EraseAllPrecomputes();
+    bool WritePrecompute(const uint256& hash, const CoinWitnessCacheData& data);
+    bool ReadPrecompute(const uint256& hash, CoinWitnessCacheData& data);
+    bool ErasePrecompute(const uint256& hash);
 
 private:
     CWalletDB(const CWalletDB&);
     void operator=(const CWalletDB&);
+
+    bool WriteAccountingEntry(const uint64_t nAccEntryNum, const CAccountingEntry& acentry);
 };
 
-void ThreadFlushWalletDB(const std::string& strFile);
+void NotifyBacked(const CWallet& wallet, bool fSuccess, string strMessage);
+bool BackupWallet(const CWallet& wallet, const boost::filesystem::path& strDest, bool fEnableCustom = true);
+bool AttemptBackupWallet(const CWallet& wallet, const boost::filesystem::path& pathSrc, const boost::filesystem::path& pathDest);
 
-#endif // BITCOIN_WALLET_WALLETDB_H
+
+#endif // BITCOIN_WALLETDB_H

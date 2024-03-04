@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=NWCCurrency Core
+Comment=NWCCurrency P2P Cryptocurrency
+Comment[fr]=NWCCurrency, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=NWCCurrency, eşten eşe kriptografik sanal para birimi
+Exec=nwccurrency-qt %u
+Terminal=false
+Type=Application
+Icon=nwccurrency128
+MimeType=x-scheme-handler/nwccurrency;
+Categories=Office;Finance;
+StartupWMClass=NWCCurrency-qt

@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2014 The Bitcoin developers
+// Copyright (c) 2017-2018 The PIVX developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,25 +9,25 @@
 
 #include <string>
 
-class Config;
 class CScheduler;
 class CWallet;
+class CzNWCWallet;
 
 namespace boost
 {
 class thread_group;
 } // namespace boost
 
+extern CWallet* pwalletMain;
+extern CzNWCWallet* zwalletMain;
+
 void StartShutdown();
 bool ShutdownRequested();
 /** Interrupt threads */
-void Interrupt(boost::thread_group& threadGroup);
+void Interrupt();
 void Shutdown();
-//!Initialize the logging infrastructure
-void InitLogging();
-//!Parameter interaction: change current parameters depending on various rules
-void InitParameterInteraction();
-bool AppInit2(Config& config, boost::thread_group& threadGroup, CScheduler& scheduler);
+void PrepareShutdown();
+bool AppInit2();
 
 /** The help message mode determines what help message to show */
 enum HelpMessageMode {

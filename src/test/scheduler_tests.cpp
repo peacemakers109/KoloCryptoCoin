@@ -1,19 +1,21 @@
-// Copyright (c) 2012-2015 The Bitcoin Core developers
+// Copyright (c) 2012-2013 The Bitcoin Core developers
+// Copyright (c) 2017-2018 The PIVX developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "random.h"
 #include "scheduler.h"
+#if defined(HAVE_CONFIG_H)
+#include "config/nwccurrency-config.h"
+#else
+#define HAVE_WORKING_BOOST_SLEEP_FOR
+#endif
 
-#include "test/test_bitcoin.h"
-
-#include <boost/bind/bind.hpp>
+#include <boost/bind.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/thread.hpp>
 #include <boost/test/unit_test.hpp>
-
-using namespace boost::placeholders;
 
 BOOST_AUTO_TEST_SUITE(scheduler_tests)
 

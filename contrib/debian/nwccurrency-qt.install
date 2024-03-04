@@ -1,0 +1,6 @@
+usr/local/bin/nwccurrency-qt usr/bin
+share/pixmaps/nwccurrency32.xpm usr/share/pixmaps
+share/pixmaps/nwccurrency16.xpm usr/share/pixmaps
+share/pixmaps/nwccurrency128.png usr/share/pixmaps
+debian/nwccurrency-qt.desktop usr/share/applications
+debian/nwccurrency-qt.protocol usr/share/kde4/services/

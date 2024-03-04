@@ -1,10 +1,10 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2014 The Bitcoin developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_WALLET_DB_H
-#define BITCOIN_WALLET_DB_H
+#ifndef BITCOIN_DB_H
+#define BITCOIN_DB_H
 
 #include "clientversion.h"
 #include "serialize.h"
@@ -20,10 +20,15 @@
 
 #include <db_cxx.h>
 
-static const unsigned int DEFAULT_WALLET_DBLOGSIZE = 100;
-static const bool DEFAULT_WALLET_PRIVDB = true;
+class CDiskBlockIndex;
+class COutPoint;
+
+struct CBlockLocator;
 
 extern unsigned int nWalletDBUpdated;
+
+void ThreadFlushWalletDB(const std::string& strWalletFile);
+
 
 class CDBEnv
 {
@@ -56,9 +61,9 @@ public:
      * Returns true if strFile is OK.
      */
     enum VerifyResult { VERIFY_OK,
-                        RECOVER_OK,
-                        RECOVER_FAIL };
-    VerifyResult Verify(const std::string& strFile, bool (*recoverFunc)(CDBEnv& dbenv, const std::string& strFile));
+        RECOVER_OK,
+        RECOVER_FAIL };
+    VerifyResult Verify(std::string strFile, bool (*recoverFunc)(CDBEnv& dbenv, std::string strFile));
     /**
      * Salvage data from a file that Verify says is bad.
      * fAggressive sets the DB_AGGRESSIVE flag (see berkeley DB->verify() method documentation).
@@ -67,7 +72,7 @@ public:
      * for huge databases.
      */
     typedef std::pair<std::vector<unsigned char>, std::vector<unsigned char> > KeyValPair;
-    bool Salvage(const std::string& strFile, bool fAggressive, std::vector<KeyValPair>& vResult);
+    bool Salvage(std::string strFile, bool fAggressive, std::vector<KeyValPair>& vResult);
 
     bool Open(const boost::filesystem::path& path);
     void Close();
@@ -98,9 +103,8 @@ protected:
     std::string strFile;
     DbTxn* activeTxn;
     bool fReadOnly;
-    bool fFlushOnClose;
 
-    explicit CDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnCloseIn=true);
+    explicit CDB(const std::string& strFilename, const char* pszMode = "r+");
     ~CDB() { Close(); }
 
 public:
@@ -309,4 +313,4 @@ public:
     bool static Rewrite(const std::string& strFile, const char* pszSkip = NULL);
 };
 
-#endif // BITCOIN_WALLET_DB_H
+#endif // BITCOIN_DB_H

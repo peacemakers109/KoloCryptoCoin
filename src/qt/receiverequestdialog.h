@@ -1,5 +1,6 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
-// Distributed under the MIT software license, see the accompanying
+// Copyright (c) 2011-2013 The Bitcoin developers
+// Copyright (c) 2017-2018 The PIVX developers
+// Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_QT_RECEIVEREQUESTDIALOG_H
@@ -10,14 +11,12 @@
 #include <QDialog>
 #include <QImage>
 #include <QLabel>
-#include <QPainter>
-#include <QString>
 
 class OptionsModel;
-class Config;
 
-namespace Ui {
-    class ReceiveRequestDialog;
+namespace Ui
+{
+class ReceiveRequestDialog;
 }
 
 QT_BEGIN_NAMESPACE
@@ -32,19 +31,19 @@ class QRImageWidget : public QLabel
     Q_OBJECT
 
 public:
-    explicit QRImageWidget(QWidget *parent = 0);
+    explicit QRImageWidget(QWidget* parent = 0);
     QImage exportImage();
 
-public Q_SLOTS:
+public slots:
     void saveImage();
     void copyImage();
 
 protected:
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void contextMenuEvent(QContextMenuEvent *event);
+    virtual void mousePressEvent(QMouseEvent* event);
+    virtual void contextMenuEvent(QContextMenuEvent* event);
 
 private:
-    QMenu *contextMenu;
+    QMenu* contextMenu;
 };
 
 class ReceiveRequestDialog : public QDialog
@@ -52,26 +51,22 @@ class ReceiveRequestDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ReceiveRequestDialog(const Config *cfg, QWidget *parent = 0);
+    explicit ReceiveRequestDialog(QWidget* parent = 0);
     ~ReceiveRequestDialog();
 
-    void setModel(OptionsModel *model);
-    void setInfo(const SendCoinsRecipient &info);
+    void setModel(OptionsModel* model);
+    void setInfo(const SendCoinsRecipient& info);
 
-private Q_SLOTS:
+private slots:
     void on_btnCopyURI_clicked();
     void on_btnCopyAddress_clicked();
 
     void update();
 
 private:
-    Ui::ReceiveRequestDialog *ui;
-    OptionsModel *model;
+    Ui::ReceiveRequestDialog* ui;
+    OptionsModel* model;
     SendCoinsRecipient info;
-    const Config *cfg;
 };
-
-// exported for unittesting
-QString ToCurrentEncoding(const QString &addr, const Config &);
 
 #endif // BITCOIN_QT_RECEIVEREQUESTDIALOG_H

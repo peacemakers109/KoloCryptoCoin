@@ -5,7 +5,7 @@
 #ifndef BITCOIN_ZMQ_ZMQNOTIFICATIONINTERFACE_H
 #define BITCOIN_ZMQ_ZMQNOTIFICATIONINTERFACE_H
 
-#include <validationinterface.h>
+#include "validationinterface.h"
 #include <string>
 #include <map>
 
@@ -24,8 +24,9 @@ protected:
     void Shutdown();
 
     // CValidationInterface
-    void SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, const CBlock* pblock, const bool fConnect = true);
+    void SyncTransaction(const CTransaction &tx, const CBlock *pblock);
     void UpdatedBlockTip(const CBlockIndex *pindex);
+    void NotifyTransactionLock(const CTransaction &tx);
 
 private:
     CZMQNotificationInterface();

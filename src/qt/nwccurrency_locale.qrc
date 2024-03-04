@@ -1,0 +1,37 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/translations">
+        <file alias="bg">locale/nwccurrency_bg.qm</file>
+        <file alias="ca">locale/nwccurrency_ca.qm</file>
+        <file alias="cs">locale/nwccurrency_cs.qm</file>
+        <file alias="da">locale/nwccurrency_da.qm</file>
+        <file alias="de">locale/nwccurrency_de.qm</file>
+        <file alias="en">locale/nwccurrency_en.qm</file>
+        <file alias="en_GB">locale/nwccurrency_en_GB.qm</file>
+        <file alias="en_US">locale/nwccurrency_en_US.qm</file>
+        <file alias="eo">locale/nwccurrency_eo.qm</file>
+        <file alias="es">locale/nwccurrency_es.qm</file>
+        <file alias="es_ES">locale/nwccurrency_es_ES.qm</file>
+        <file alias="fi">locale/nwccurrency_fi.qm</file>
+        <file alias="fr_FR">locale/nwccurrency_fr_FR.qm</file>
+        <file alias="hi_IN">locale/nwccurrency_hi_IN.qm</file>
+        <file alias="hr">locale/nwccurrency_hr.qm</file>
+        <file alias="hr_HR">locale/nwccurrency_hr_HR.qm</file>
+        <file alias="it">locale/nwccurrency_it.qm</file>
+        <file alias="ja">locale/nwccurrency_ja.qm</file>
+        <file alias="ko_KR">locale/nwccurrency_ko_KR.qm</file>
+        <file alias="lt_LT">locale/nwccurrency_lt_LT.qm</file>
+        <file alias="nl">locale/nwccurrency_nl.qm</file>
+        <file alias="pl">locale/nwccurrency_pl.qm</file>
+        <file alias="pt">locale/nwccurrency_pt.qm</file>
+        <file alias="pt_BR">locale/nwccurrency_pt_BR.qm</file>
+        <file alias="ro_RO">locale/nwccurrency_ro_RO.qm</file>
+        <file alias="ru">locale/nwccurrency_ru.qm</file>
+        <file alias="sk">locale/nwccurrency_sk.qm</file>
+        <file alias="sv">locale/nwccurrency_sv.qm</file>
+        <file alias="tr">locale/nwccurrency_tr.qm</file>
+        <file alias="uk">locale/nwccurrency_uk.qm</file>
+        <file alias="vi">locale/nwccurrency_vi.qm</file>
+        <file alias="zh_CN">locale/nwccurrency_zh_CN.qm</file>
+        <file alias="zh_TW">locale/nwccurrency_zh_TW.qm</file>
+    </qresource>
+</RCC>

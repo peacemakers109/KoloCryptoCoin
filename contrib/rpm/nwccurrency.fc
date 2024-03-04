@@ -1,0 +1,8 @@
+/usr/bin/nwccurrency-cli		--	gen_context(system_u:object_r:nwccurrency_exec_t,s0)
+/usr/sbin/nwccurrencyd		--	gen_context(system_u:object_r:nwccurrency_exec_t,s0)
+/usr/lib(64)?/nwccurrency/nwccurrencyd		--	gen_context(system_u:object_r:nwccurrency_exec_t,s0)
+
+/etc/nwccurrency(/.*)?		gen_context(system_u:object_r:nwccurrency_conf_t,s0)
+/var/lib/nwccurrency(/.*)?		gen_context(system_u:object_r:nwccurrency_var_lib_t,s0)
+
+(/var)?/run/nwccurrencyd(/.*)?   gen_context(system_u:object_r:nwccurrency_var_run_t,s0)

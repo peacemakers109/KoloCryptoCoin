@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-# Copyright (c) 2013-2020 The Bitcoin Core developers
+# Copyright (c) 2013-2016 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -100,7 +100,6 @@ am__aclocal_m4_deps = $(top_srcdir)/build-aux/m4/ax_boost_base.m4 \
 	$(top_srcdir)/build-aux/m4/ax_boost_chrono.m4 \
 	$(top_srcdir)/build-aux/m4/ax_boost_filesystem.m4 \
 	$(top_srcdir)/build-aux/m4/ax_boost_program_options.m4 \
-	$(top_srcdir)/build-aux/m4/ax_boost_random.m4 \
 	$(top_srcdir)/build-aux/m4/ax_boost_system.m4 \
 	$(top_srcdir)/build-aux/m4/ax_boost_thread.m4 \
 	$(top_srcdir)/build-aux/m4/ax_boost_unit_test_framework.m4 \
@@ -110,11 +109,11 @@ am__aclocal_m4_deps = $(top_srcdir)/build-aux/m4/ax_boost_base.m4 \
 	$(top_srcdir)/build-aux/m4/ax_cxx_compile_stdcxx.m4 \
 	$(top_srcdir)/build-aux/m4/ax_gcc_func_attribute.m4 \
 	$(top_srcdir)/build-aux/m4/ax_pthread.m4 \
-	$(top_srcdir)/build-aux/m4/bitcoin_find_bdb62.m4 \
+	$(top_srcdir)/build-aux/m4/bitcoin_find_bdb48.m4 \
 	$(top_srcdir)/build-aux/m4/bitcoin_qt.m4 \
 	$(top_srcdir)/build-aux/m4/bitcoin_subdir_to_include.m4 \
+	$(top_srcdir)/build-aux/m4/gmp.m4 \
 	$(top_srcdir)/build-aux/m4/l_atomic.m4 \
-	$(top_srcdir)/build-aux/m4/l_socket.m4 \
 	$(top_srcdir)/build-aux/m4/libtool.m4 \
 	$(top_srcdir)/build-aux/m4/ltoptions.m4 \
 	$(top_srcdir)/build-aux/m4/ltsugar.m4 \
@@ -129,13 +128,13 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/src/config/bitcoin-config.h
+CONFIG_HEADER = $(top_builddir)/src/config/nwccurrency-config.h
 CONFIG_CLEAN_FILES = libbitcoinconsensus.pc share/setup.nsi \
-	share/qt/Info.plist src/test/buildenv.py \
-	qa/pull-tester/run-bitcoind-for-test.sh \
-	qa/pull-tester/tests_config.py contrib/devtools/split-debug.sh \
-	doc/Doxyfile
-CONFIG_CLEAN_VPATH_FILES = qa/pull-tester/rpc-tests.py
+	share/qt/Info.plist test/config.ini \
+	contrib/devtools/split-debug.sh doc/Doxyfile
+CONFIG_CLEAN_VPATH_FILES = contrib/filter-lcov.py \
+	test/functional/test_runner.py test/util/bitcoin-util-test.py \
+	test/util/rpcauth-test.py
 SCRIPTS = $(dist_noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -228,17 +227,17 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/ltmain.sh \
 	$(top_srcdir)/build-aux/missing \
 	$(top_srcdir)/contrib/devtools/split-debug.sh.in \
+	$(top_srcdir)/contrib/filter-lcov.py \
 	$(top_srcdir)/doc/Doxyfile.in \
-	$(top_srcdir)/qa/pull-tester/rpc-tests.py \
-	$(top_srcdir)/qa/pull-tester/run-bitcoind-for-test.sh.in \
-	$(top_srcdir)/qa/pull-tester/tests_config.py.in \
 	$(top_srcdir)/share/qt/Info.plist.in \
 	$(top_srcdir)/share/setup.nsi.in \
-	$(top_srcdir)/src/config/bitcoin-config.h.in \
-	$(top_srcdir)/src/test/buildenv.py.in COPYING INSTALL.md \
-	README.md build-aux/compile build-aux/config.guess \
-	build-aux/config.sub build-aux/install-sh build-aux/ltmain.sh \
-	build-aux/missing
+	$(top_srcdir)/src/config/nwccurrency-config.h.in \
+	$(top_srcdir)/test/config.ini.in \
+	$(top_srcdir)/test/functional/test_runner.py \
+	$(top_srcdir)/test/util/bitcoin-util-test.py \
+	$(top_srcdir)/test/util/rpcauth-test.py COPYING INSTALL \
+	build-aux/compile build-aux/config.guess build-aux/config.sub \
+	build-aux/install-sh build-aux/ltmain.sh build-aux/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -286,10 +285,8 @@ distcleancheck_listfiles = find . -type f -print
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
-ANDROID_ARCH = @ANDROID_ARCH@
 AR = @AR@
 ARFLAGS = @ARFLAGS@
-ARM_CRC_CXXFLAGS = @ARM_CRC_CXXFLAGS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -308,7 +305,6 @@ BOOST_FILESYSTEM_LIB = @BOOST_FILESYSTEM_LIB@
 BOOST_LDFLAGS = @BOOST_LDFLAGS@
 BOOST_LIBS = @BOOST_LIBS@
 BOOST_PROGRAM_OPTIONS_LIB = @BOOST_PROGRAM_OPTIONS_LIB@
-BOOST_RANDOM_LIB = @BOOST_RANDOM_LIB@
 BOOST_SYSTEM_LIB = @BOOST_SYSTEM_LIB@
 BOOST_THREAD_LIB = @BOOST_THREAD_LIB@
 BOOST_UNIT_TEST_FRAMEWORK_LIB = @BOOST_UNIT_TEST_FRAMEWORK_LIB@
@@ -321,14 +317,9 @@ CLIENT_VERSION_BUILD = @CLIENT_VERSION_BUILD@
 CLIENT_VERSION_IS_RELEASE = @CLIENT_VERSION_IS_RELEASE@
 CLIENT_VERSION_MAJOR = @CLIENT_VERSION_MAJOR@
 CLIENT_VERSION_MINOR = @CLIENT_VERSION_MINOR@
-COMPARISON_TOOL_REORG_TESTS = @COMPARISON_TOOL_REORG_TESTS@
+CLIENT_VERSION_REVISION = @CLIENT_VERSION_REVISION@
 COMPAT_LDFLAGS = @COMPAT_LDFLAGS@
-COPYRIGHT_HOLDERS = @COPYRIGHT_HOLDERS@
-COPYRIGHT_HOLDERS_FINAL = @COPYRIGHT_HOLDERS_FINAL@
-COPYRIGHT_HOLDERS_SUBSTITUTION = @COPYRIGHT_HOLDERS_SUBSTITUTION@
 COPYRIGHT_YEAR = @COPYRIGHT_YEAR@
-COV_TOOL = @COV_TOOL@
-COV_TOOL_WRAPPER = @COV_TOOL_WRAPPER@
 CPP = @CPP@
 CPPFILT = @CPPFILT@
 CPPFLAGS = @CPPFLAGS@
@@ -346,7 +337,6 @@ DEBUG_CXXFLAGS = @DEBUG_CXXFLAGS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
-DMG = @DMG@
 DOXYGEN = @DOXYGEN@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
@@ -361,25 +351,19 @@ EVENT_LIBS = @EVENT_LIBS@
 EVENT_PTHREADS_CFLAGS = @EVENT_PTHREADS_CFLAGS@
 EVENT_PTHREADS_LIBS = @EVENT_PTHREADS_LIBS@
 EXEEXT = @EXEEXT@
-EXTENDED_RPC_TESTS = @EXTENDED_RPC_TESTS@
+EXTENDED_FUNCTIONAL_TESTS = @EXTENDED_FUNCTIONAL_TESTS@
 FGREP = @FGREP@
 GCOV = @GCOV@
 GENHTML = @GENHTML@
+GENISOIMAGE = @GENISOIMAGE@
 GIT = @GIT@
+GPROF_CXXFLAGS = @GPROF_CXXFLAGS@
+GPROF_LDFLAGS = @GPROF_LDFLAGS@
 GREP = @GREP@
 HARDENED_CPPFLAGS = @HARDENED_CPPFLAGS@
 HARDENED_CXXFLAGS = @HARDENED_CXXFLAGS@
 HARDENED_LDFLAGS = @HARDENED_LDFLAGS@
-HAVE_BUILTIN_PREFETCH = @HAVE_BUILTIN_PREFETCH@
 HAVE_CXX11 = @HAVE_CXX11@
-HAVE_CXX17 = @HAVE_CXX17@
-HAVE_FDATASYNC = @HAVE_FDATASYNC@
-HAVE_FULLFSYNC = @HAVE_FULLFSYNC@
-HAVE_GMTIME_R = @HAVE_GMTIME_R@
-HAVE_MM_PREFETCH = @HAVE_MM_PREFETCH@
-HAVE_O_CLOEXEC = @HAVE_O_CLOEXEC@
-HAVE_STRONG_GETAUXVAL = @HAVE_STRONG_GETAUXVAL@
-HAVE_WEAK_GETAUXVAL = @HAVE_WEAK_GETAUXVAL@
 HEXDUMP = @HEXDUMP@
 IMAGEMAGICK_CONVERT = @IMAGEMAGICK_CONVERT@
 INSTALL = @INSTALL@
@@ -388,12 +372,12 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-JAVA_COMPARISON_TOOL = @JAVA_COMPARISON_TOOL@
-LCONVERT = @LCONVERT@
 LCOV = @LCOV@
+LCOV_OPTS = @LCOV_OPTS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LEVELDB_CPPFLAGS = @LEVELDB_CPPFLAGS@
+LEVELDB_TARGET_FLAGS = @LEVELDB_TARGET_FLAGS@
 LIBLEVELDB = @LIBLEVELDB@
 LIBMEMENV = @LIBMEMENV@
 LIBOBJS = @LIBOBJS@
@@ -401,7 +385,6 @@ LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_APP_LDFLAGS = @LIBTOOL_APP_LDFLAGS@
 LIPO = @LIPO@
-LLVM_COV = @LLVM_COV@
 LN_S = @LN_S@
 LRELEASE = @LRELEASE@
 LTLIBOBJS = @LTLIBOBJS@
@@ -441,69 +424,59 @@ PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 PORT = @PORT@
+PROTOBUF_CFLAGS = @PROTOBUF_CFLAGS@
 PROTOBUF_LIBS = @PROTOBUF_LIBS@
 PROTOC = @PROTOC@
 PTHREAD_CC = @PTHREAD_CC@
 PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
-PTHREAD_CXX = @PTHREAD_CXX@
 PTHREAD_LIBS = @PTHREAD_LIBS@
 PYTHON = @PYTHON@
 PYTHONPATH = @PYTHONPATH@
 QR_CFLAGS = @QR_CFLAGS@
 QR_LIBS = @QR_LIBS@
-QT_ACCESSIBILITY_CFLAGS = @QT_ACCESSIBILITY_CFLAGS@
-QT_ACCESSIBILITY_LIBS = @QT_ACCESSIBILITY_LIBS@
-QT_CLIPBOARD_CFLAGS = @QT_CLIPBOARD_CFLAGS@
-QT_CLIPBOARD_LIBS = @QT_CLIPBOARD_LIBS@
-QT_CORE_CFLAGS = @QT_CORE_CFLAGS@
-QT_CORE_LIBS = @QT_CORE_LIBS@
+QT5_CFLAGS = @QT5_CFLAGS@
+QT5_LIBS = @QT5_LIBS@
+QTACCESSIBILITY_CFLAGS = @QTACCESSIBILITY_CFLAGS@
+QTACCESSIBILITY_LIBS = @QTACCESSIBILITY_LIBS@
+QTCGL_CFLAGS = @QTCGL_CFLAGS@
+QTCGL_LIBS = @QTCGL_LIBS@
+QTCLIPBOARD_CFLAGS = @QTCLIPBOARD_CFLAGS@
+QTCLIPBOARD_LIBS = @QTCLIPBOARD_LIBS@
+QTDEVICEDISCOVERY_CFLAGS = @QTDEVICEDISCOVERY_CFLAGS@
+QTDEVICEDISCOVERY_LIBS = @QTDEVICEDISCOVERY_LIBS@
+QTEVENTDISPATCHER_CFLAGS = @QTEVENTDISPATCHER_CFLAGS@
+QTEVENTDISPATCHER_LIBS = @QTEVENTDISPATCHER_LIBS@
+QTFB_CFLAGS = @QTFB_CFLAGS@
+QTFB_LIBS = @QTFB_LIBS@
+QTFONTDATABASE_CFLAGS = @QTFONTDATABASE_CFLAGS@
+QTFONTDATABASE_LIBS = @QTFONTDATABASE_LIBS@
+QTGRAPHICS_CFLAGS = @QTGRAPHICS_CFLAGS@
+QTGRAPHICS_LIBS = @QTGRAPHICS_LIBS@
+QTPLATFORM_CFLAGS = @QTPLATFORM_CFLAGS@
+QTPLATFORM_LIBS = @QTPLATFORM_LIBS@
+QTTHEME_CFLAGS = @QTTHEME_CFLAGS@
+QTTHEME_LIBS = @QTTHEME_LIBS@
+QTXCBQPA_CFLAGS = @QTXCBQPA_CFLAGS@
+QTXCBQPA_LIBS = @QTXCBQPA_LIBS@
 QT_DBUS_CFLAGS = @QT_DBUS_CFLAGS@
 QT_DBUS_INCLUDES = @QT_DBUS_INCLUDES@
 QT_DBUS_LIBS = @QT_DBUS_LIBS@
-QT_DEVICEDISCOVERY_CFLAGS = @QT_DEVICEDISCOVERY_CFLAGS@
-QT_DEVICEDISCOVERY_LIBS = @QT_DEVICEDISCOVERY_LIBS@
-QT_EDID_CFLAGS = @QT_EDID_CFLAGS@
-QT_EDID_LIBS = @QT_EDID_LIBS@
-QT_EGL_CFLAGS = @QT_EGL_CFLAGS@
-QT_EGL_LIBS = @QT_EGL_LIBS@
-QT_EVENTDISPATCHER_CFLAGS = @QT_EVENTDISPATCHER_CFLAGS@
-QT_EVENTDISPATCHER_LIBS = @QT_EVENTDISPATCHER_LIBS@
-QT_FB_CFLAGS = @QT_FB_CFLAGS@
-QT_FB_LIBS = @QT_FB_LIBS@
-QT_FONTDATABASE_CFLAGS = @QT_FONTDATABASE_CFLAGS@
-QT_FONTDATABASE_LIBS = @QT_FONTDATABASE_LIBS@
-QT_GRAPHICS_CFLAGS = @QT_GRAPHICS_CFLAGS@
-QT_GRAPHICS_LIBS = @QT_GRAPHICS_LIBS@
-QT_GUI_CFLAGS = @QT_GUI_CFLAGS@
-QT_GUI_LIBS = @QT_GUI_LIBS@
 QT_INCLUDES = @QT_INCLUDES@
-QT_INPUT_CFLAGS = @QT_INPUT_CFLAGS@
-QT_INPUT_LIBS = @QT_INPUT_LIBS@
 QT_LDFLAGS = @QT_LDFLAGS@
 QT_LIBS = @QT_LIBS@
-QT_NETWORK_CFLAGS = @QT_NETWORK_CFLAGS@
-QT_NETWORK_LIBS = @QT_NETWORK_LIBS@
 QT_PIE_FLAGS = @QT_PIE_FLAGS@
 QT_SELECT = @QT_SELECT@
-QT_SERVICE_CFLAGS = @QT_SERVICE_CFLAGS@
-QT_SERVICE_LIBS = @QT_SERVICE_LIBS@
 QT_TEST_CFLAGS = @QT_TEST_CFLAGS@
 QT_TEST_INCLUDES = @QT_TEST_INCLUDES@
 QT_TEST_LIBS = @QT_TEST_LIBS@
-QT_THEME_CFLAGS = @QT_THEME_CFLAGS@
-QT_THEME_LIBS = @QT_THEME_LIBS@
 QT_TRANSLATION_DIR = @QT_TRANSLATION_DIR@
-QT_WIDGETS_CFLAGS = @QT_WIDGETS_CFLAGS@
-QT_WIDGETS_LIBS = @QT_WIDGETS_LIBS@
-QT_WINDOWSUIAUTOMATION_CFLAGS = @QT_WINDOWSUIAUTOMATION_CFLAGS@
-QT_WINDOWSUIAUTOMATION_LIBS = @QT_WINDOWSUIAUTOMATION_LIBS@
-QT_XCBQPA_CFLAGS = @QT_XCBQPA_CFLAGS@
-QT_XCBQPA_LIBS = @QT_XCBQPA_LIBS@
 RANLIB = @RANLIB@
 RCC = @RCC@
 READELF = @READELF@
 RELDFLAGS = @RELDFLAGS@
 RSVG_CONVERT = @RSVG_CONVERT@
+SANITIZER_CXXFLAGS = @SANITIZER_CXXFLAGS@
+SANITIZER_LDFLAGS = @SANITIZER_LDFLAGS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHANI_CXXFLAGS = @SHANI_CXXFLAGS@
@@ -518,14 +491,17 @@ TIFFCP = @TIFFCP@
 UIC = @UIC@
 UNIVALUE_CFLAGS = @UNIVALUE_CFLAGS@
 UNIVALUE_LIBS = @UNIVALUE_LIBS@
+USE_NUM_GMP = @USE_NUM_GMP@
+USE_NUM_OPENSSL = @USE_NUM_OPENSSL@
 USE_QRCODE = @USE_QRCODE@
-USE_SSE2 = @USE_SSE2@
 USE_UPNP = @USE_UPNP@
 VERSION = @VERSION@
 WARN_CXXFLAGS = @WARN_CXXFLAGS@
+WINDOWS_BITS = @WINDOWS_BITS@
 WINDRES = @WINDRES@
+X11XCB_CFLAGS = @X11XCB_CFLAGS@
+X11XCB_LIBS = @X11XCB_LIBS@
 XGETTEXT = @XGETTEXT@
-XORRISOFS = @XORRISOFS@
 ZMQ_CFLAGS = @ZMQ_CFLAGS@
 ZMQ_LIBS = @ZMQ_LIBS@
 abs_builddir = @abs_builddir@
@@ -592,62 +568,83 @@ SUBDIRS = src $(am__append_1)
 BITCOIND_BIN = $(top_builddir)/src/$(BITCOIN_DAEMON_NAME)$(EXEEXT)
 BITCOIN_QT_BIN = $(top_builddir)/src/qt/$(BITCOIN_GUI_NAME)$(EXEEXT)
 BITCOIN_CLI_BIN = $(top_builddir)/src/$(BITCOIN_CLI_NAME)$(EXEEXT)
-BITCOIN_TX_BIN = $(top_builddir)/src/$(BITCOIN_TX_NAME)$(EXEEXT)
-BITCOIN_WIN_INSTALLER = $(PACKAGE)-$(PACKAGE_VERSION)-win64-setup$(EXEEXT)
+BITCOIN_WIN_INSTALLER = $(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 empty := 
 space := $(empty) $(empty)
-OSX_APP = KoloCryptoCoin-Qt.app
+OSX_APP = NWCCurrency-Qt.app
 OSX_VOLNAME = $(subst $(space),-,$(PACKAGE_NAME))
 OSX_DMG = $(OSX_VOLNAME).dmg
-OSX_TEMP_ISO = $(OSX_DMG:.dmg=).temp.iso
 OSX_BACKGROUND_SVG = background.svg
 OSX_BACKGROUND_IMAGE = background.tiff
 OSX_BACKGROUND_IMAGE_DPIS = 36 72
+OSX_DSSTORE_GEN = $(top_srcdir)/contrib/macdeploy/custom_dsstore.py
 OSX_DEPLOY_SCRIPT = $(top_srcdir)/contrib/macdeploy/macdeployqtplus
+OSX_FANCY_PLIST = $(top_srcdir)/contrib/macdeploy/fancy.plist
 OSX_INSTALLER_ICONS = $(top_srcdir)/src/qt/res/icons/bitcoin.icns
 OSX_PLIST = $(top_builddir)/share/qt/Info.plist #not installed
-DIST_CONTRIB = \
-	       $(top_srcdir)/contrib/linearize/linearize-data.py \
-	       $(top_srcdir)/contrib/linearize/linearize-hashes.py
+OSX_QT_TRANSLATIONS = da,de,es,hu,ru,uk,zh_CN,zh_TW
+DIST_DOCS = $(wildcard doc/*.md) $(wildcard doc/release-notes/*.md)
+DIST_CONTRIB = $(top_srcdir)/contrib/nwccurrency-cli.bash-completion \
+	       $(top_srcdir)/contrib/nwccurrency-tx.bash-completion \
+	       $(top_srcdir)/contrib/nwccurrencyd.bash-completion \
+           $(top_srcdir)/contrib/init \
+           $(top_srcdir)/contrib/install_db4.sh
 
 DIST_SHARE = \
-  $(top_srcdir)/share/genbuild.sh \
-  $(top_srcdir)/share/rpcauth
+           $(top_srcdir)/share/genbuild.sh \
+           $(top_srcdir)/share/rpcauth
 
-DIST_DOCS = $(wildcard doc/*.md) $(wildcard doc/release-notes/*.md)
 BIN_CHECKS = $(top_srcdir)/contrib/devtools/symbol-check.py \
-           $(top_srcdir)/contrib/devtools/security-check.py \
-           $(top_srcdir)/contrib/devtools/utils.py \
-           $(top_srcdir)/contrib/devtools/pixie.py
+           $(top_srcdir)/contrib/devtools/security-check.py
 
-WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/bitcoin.ico \
+WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/nwccurrency.ico \
   $(top_srcdir)/share/pixmaps/nsis-header.bmp \
   $(top_srcdir)/share/pixmaps/nsis-wizard.bmp \
   $(top_srcdir)/doc/README_windows.txt
 
-OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_INSTALLER_ICONS) \
+LINUX_PACKAGING = $(top_srcdir)/share/pixmaps/nwccurrency16.xpm \
+  $(top_srcdir)/share/pixmaps/nwccurrency32.xpm \
+  $(top_srcdir)/share/pixmaps/nwccurrency128.png
+
+OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_FANCY_PLIST) $(OSX_INSTALLER_ICONS) \
   $(top_srcdir)/contrib/macdeploy/$(OSX_BACKGROUND_SVG) \
+  $(OSX_DSSTORE_GEN) \
   $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
   $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
 
-COVERAGE_INFO = baseline_filtered_combined.info baseline.info block_test.info \
-  leveldb_baseline.info test_bitcoin_filtered.info total_coverage.info \
-  baseline_filtered.info block_test_filtered.info rpc_test.info rpc_test_filtered.info \
-  leveldb_baseline_filtered.info test_bitcoin_coverage.info test_bitcoin.info
+COVERAGE_INFO = baseline.info \
+  test_nwccurrency_filtered.info total_coverage.info \
+  baseline_filtered.info functional_test.info functional_test_filtered.info \
+  test_nwccurrency_coverage.info test_nwccurrency.info
 
-@TARGET_DARWIN_TRUE@OSX_APP_BUILT = $(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lproj \
-@TARGET_DARWIN_TRUE@  $(OSX_APP)/Contents/Resources/bitcoin.icns $(OSX_APP)/Contents/Info.plist \
-@TARGET_DARWIN_TRUE@  $(OSX_APP)/Contents/MacOS/KoloCryptoCoin-Qt $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings
+OSX_APP_BUILT = $(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lproj \
+  $(OSX_APP)/Contents/Resources/bitcoin.icns $(OSX_APP)/Contents/Info.plist \
+  $(OSX_APP)/Contents/MacOS/NWCCurrency-Qt $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings
 
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@APP_DIST_DIR = $(top_builddir)/dist
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@APP_DIST_EXTRAS = $(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE) $(APP_DIST_DIR)/.DS_Store $(APP_DIST_DIR)/Applications
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@OSX_BACKGROUND_IMAGE_DPIFILES := $(foreach dpi,$(OSX_BACKGROUND_IMAGE_DPIS),dpi$(dpi).$(OSX_BACKGROUND_IMAGE))
+@BUILD_DARWIN_FALSE@APP_DIST_DIR = $(top_builddir)/dist
+@BUILD_DARWIN_FALSE@APP_DIST_EXTRAS = $(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE) $(APP_DIST_DIR)/.DS_Store $(APP_DIST_DIR)/Applications
+@BUILD_DARWIN_FALSE@OSX_BACKGROUND_IMAGE_DPIFILES := $(foreach dpi,$(OSX_BACKGROUND_IMAGE_DPIS),dpi$(dpi).$(OSX_BACKGROUND_IMAGE))
+@USE_LCOV_TRUE@LCOV_FILTER_PATTERN = -p "/usr/include/" -p "/usr/lib/" -p "src/leveldb/" -p "src/univalue" -p "src/secp256k1"
 dist_noinst_SCRIPTS = autogen.sh
-EXTRA_DIST = $(top_srcdir)/share/genbuild.sh qa/pull-tester/rpc-tests.py qa/rpc-tests $(DIST_DOCS) $(DIST_SHARE) $(DIST_CONTRIB) $(WINDOWS_PACKAGING) $(OSX_PACKAGING) $(BIN_CHECKS)
+EXTRA_DIST = $(DIST_SHARE) $(DIST_CONTRIB) $(DIST_DOCS) \
+	$(WINDOWS_PACKAGING) $(LINUX_PACKAGING) $(OSX_PACKAGING) \
+	$(BIN_CHECKS) test/functional test/util/bitcoin-util-test.py \
+	test/util/data/bitcoin-util-test.json \
+	test/util/data/blanktxv1.hex test/util/data/blanktxv1.json \
+	test/util/data/tt-delin1-out.hex \
+	test/util/data/tt-delin1-out.json \
+	test/util/data/tt-delout1-out.hex \
+	test/util/data/tt-delout1-out.json \
+	test/util/data/tt-locktime317000-out.hex \
+	test/util/data/tt-locktime317000-out.json \
+	test/util/data/tx394b54bb.hex test/util/data/txcreate1.hex \
+	test/util/data/txcreate1.json test/util/data/txcreate2.hex \
+	test/util/data/txcreate2.json \
+	test/util/data/txcreatescript1.hex \
+	test/util/data/txcreatescript1.json \
+	test/util/data/txcreatesign.hex \
+	test/util/data/txcreatesign.json test/util/rpcauth-test.py
 CLEANFILES = $(OSX_DMG) $(BITCOIN_WIN_INSTALLER)
-
-# This file is problematic for out-of-tree builds if it exists.
-DISTCLEANFILES = qa/pull-tester/tests_config.pyc
 DISTCHECK_CONFIGURE_FLAGS = --enable-man
 all: all-recursive
 
@@ -686,31 +683,27 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
-src/config/bitcoin-config.h: src/config/stamp-h1
+src/config/nwccurrency-config.h: src/config/stamp-h1
 	@test -f $@ || rm -f src/config/stamp-h1
 	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) src/config/stamp-h1
 
-src/config/stamp-h1: $(top_srcdir)/src/config/bitcoin-config.h.in $(top_builddir)/config.status
+src/config/stamp-h1: $(top_srcdir)/src/config/nwccurrency-config.h.in $(top_builddir)/config.status
 	@rm -f src/config/stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status src/config/bitcoin-config.h
-$(top_srcdir)/src/config/bitcoin-config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
+	cd $(top_builddir) && $(SHELL) ./config.status src/config/nwccurrency-config.h
+$(top_srcdir)/src/config/nwccurrency-config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	rm -f src/config/stamp-h1
 	touch $@
 
 distclean-hdr:
-	-rm -f src/config/bitcoin-config.h src/config/stamp-h1
+	-rm -f src/config/nwccurrency-config.h src/config/stamp-h1
 libbitcoinconsensus.pc: $(top_builddir)/config.status $(srcdir)/libbitcoinconsensus.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 share/setup.nsi: $(top_builddir)/config.status $(top_srcdir)/share/setup.nsi.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 share/qt/Info.plist: $(top_builddir)/config.status $(top_srcdir)/share/qt/Info.plist.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-src/test/buildenv.py: $(top_builddir)/config.status $(top_srcdir)/src/test/buildenv.py.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-qa/pull-tester/run-bitcoind-for-test.sh: $(top_builddir)/config.status $(top_srcdir)/qa/pull-tester/run-bitcoind-for-test.sh.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-qa/pull-tester/tests_config.py: $(top_builddir)/config.status $(top_srcdir)/qa/pull-tester/tests_config.py.in
+test/config.ini: $(top_builddir)/config.status $(top_srcdir)/test/config.ini.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 contrib/devtools/split-debug.sh: $(top_builddir)/config.status $(top_srcdir)/contrib/devtools/split-debug.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
@@ -1052,9 +1045,7 @@ distcleancheck: distclean
 	  || { echo "ERROR: files left in build directory after distclean:" ; \
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
-@USE_COMPARISON_TOOL_FALSE@check-local:
 check-am: all-am
-	$(MAKE) $(AM_MAKEFLAGS) check-local
 check: check-recursive
 all-am: Makefile $(SCRIPTS) $(DATA)
 installdirs: installdirs-recursive
@@ -1089,7 +1080,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1164,116 +1154,109 @@ ps-am:
 
 uninstall-am: uninstall-pkgconfigDATA
 
-.MAKE: $(am__recursive_targets) check-am install-am install-strip
+.MAKE: $(am__recursive_targets) install-am install-strip
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
-	am--refresh check check-am check-local clean clean-cscope \
-	clean-generic clean-libtool clean-local cscope cscopelist-am \
-	ctags ctags-am dist dist-all dist-bzip2 dist-gzip dist-hook \
-	dist-lzip dist-shar dist-tarZ dist-xz dist-zip dist-zstd \
-	distcheck distclean distclean-generic distclean-hdr \
-	distclean-libtool distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-pkgconfigDATA install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-pkgconfigDATA
+	am--refresh check check-am clean clean-cscope clean-generic \
+	clean-libtool clean-local cscope cscopelist-am ctags ctags-am \
+	dist dist-all dist-bzip2 dist-gzip dist-hook dist-lzip \
+	dist-shar dist-tarZ dist-xz dist-zip dist-zstd distcheck \
+	distclean distclean-generic distclean-hdr distclean-libtool \
+	distclean-tags distcleancheck distdir distuninstallcheck dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-pkgconfigDATA install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-pkgconfigDATA
 
 .PRECIOUS: Makefile
 
-
-# Pattern rule to print variables, e.g. make print-top_srcdir
-print-%: FORCE
-	@echo '$*'='$($*)'
 .PHONY: deploy FORCE
-.INTERMEDIATE: $(OSX_TEMP_ISO) $(COVERAGE_INFO)
 
 export PYTHONPATH
 
 dist-hook:
 	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
 
-@TARGET_WINDOWS_TRUE@$(BITCOIN_WIN_INSTALLER): all-recursive
-@TARGET_WINDOWS_TRUE@	$(MKDIR_P) $(top_builddir)/release
-@TARGET_WINDOWS_TRUE@	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIND_BIN) $(top_builddir)/release
-@TARGET_WINDOWS_TRUE@	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_QT_BIN) $(top_builddir)/release
-@TARGET_WINDOWS_TRUE@	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_CLI_BIN) $(top_builddir)/release
-@TARGET_WINDOWS_TRUE@	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_TX_BIN) $(top_builddir)/release
-@TARGET_WINDOWS_TRUE@	@test -f $(MAKENSIS) && echo 'OutFile "$@"' | cat $(top_builddir)/share/setup.nsi - | $(MAKENSIS) -V2 - || \
-@TARGET_WINDOWS_TRUE@	  echo error: could not build $@
-@TARGET_WINDOWS_TRUE@	@echo built $@
+$(BITCOIN_WIN_INSTALLER): all-recursive
+	$(MKDIR_P) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIND_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_QT_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_CLI_BIN) $(top_builddir)/release
+	@test -f $(MAKENSIS) && $(MAKENSIS) -V2 $(top_builddir)/share/setup.nsi || \
+	  echo error: could not build $@
+	@echo built $@
 
-@TARGET_WINDOWS_TRUE@deploy: $(BITCOIN_WIN_INSTALLER)
+$(OSX_APP)/Contents/PkgInfo:
+	$(MKDIR_P) $(@D)
+	@echo "APPL????" > $@
 
-@TARGET_DARWIN_TRUE@$(OSX_APP)/Contents/PkgInfo:
-@TARGET_DARWIN_TRUE@	$(MKDIR_P) $(@D)
-@TARGET_DARWIN_TRUE@	@echo "APPL????" > $@
+$(OSX_APP)/Contents/Resources/empty.lproj:
+	$(MKDIR_P) $(@D)
+	@touch $@
 
-@TARGET_DARWIN_TRUE@$(OSX_APP)/Contents/Resources/empty.lproj:
-@TARGET_DARWIN_TRUE@	$(MKDIR_P) $(@D)
-@TARGET_DARWIN_TRUE@	@touch $@
+$(OSX_APP)/Contents/Info.plist: $(OSX_PLIST)
+	$(MKDIR_P) $(@D)
+	$(INSTALL_DATA) $< $@
 
-@TARGET_DARWIN_TRUE@$(OSX_APP)/Contents/Info.plist: $(OSX_PLIST)
-@TARGET_DARWIN_TRUE@	$(MKDIR_P) $(@D)
-@TARGET_DARWIN_TRUE@	$(INSTALL_DATA) $< $@
+$(OSX_APP)/Contents/Resources/bitcoin.icns: $(OSX_INSTALLER_ICONS)
+	$(MKDIR_P) $(@D)
+	$(INSTALL_DATA) $< $@
 
-@TARGET_DARWIN_TRUE@$(OSX_APP)/Contents/Resources/bitcoin.icns: $(OSX_INSTALLER_ICONS)
-@TARGET_DARWIN_TRUE@	$(MKDIR_P) $(@D)
-@TARGET_DARWIN_TRUE@	$(INSTALL_DATA) $< $@
+$(OSX_APP)/Contents/MacOS/NWCCurrency-Qt: all-recursive
+	$(MKDIR_P) $(@D)
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $(BITCOIN_QT_BIN) $@
 
-@TARGET_DARWIN_TRUE@$(OSX_APP)/Contents/MacOS/KoloCryptoCoin-Qt: all-recursive
-@TARGET_DARWIN_TRUE@	$(MKDIR_P) $(@D)
-@TARGET_DARWIN_TRUE@	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $(BITCOIN_QT_BIN) $@
+$(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings:
+	$(MKDIR_P) $(@D)
+	echo '{	CFBundleDisplayName = "$(PACKAGE_NAME)"; CFBundleName = "$(PACKAGE_NAME)"; }' > $@
 
-@TARGET_DARWIN_TRUE@$(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings:
-@TARGET_DARWIN_TRUE@	$(MKDIR_P) $(@D)
-@TARGET_DARWIN_TRUE@	echo '{	CFBundleDisplayName = "$(PACKAGE_NAME)"; CFBundleName = "$(PACKAGE_NAME)"; }' > $@
+osx_volname:
+	echo $(OSX_VOLNAME) >$@
 
-@TARGET_DARWIN_TRUE@osx_volname:
-@TARGET_DARWIN_TRUE@	echo $(OSX_VOLNAME) >$@
+@BUILD_DARWIN_TRUE@$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING) $(OSX_BACKGROUND_IMAGE)
+@BUILD_DARWIN_TRUE@	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -add-qt-tr $(OSX_QT_TRANSLATIONS) -translations-dir=$(QT_TRANSLATION_DIR) -dmg -fancy $(OSX_FANCY_PLIST) -verbose 2 -volname $(OSX_VOLNAME)
 
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING) $(OSX_BACKGROUND_IMAGE)
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR) -dmg
+@BUILD_DARWIN_TRUE@$(OSX_BACKGROUND_IMAGE).png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+@BUILD_DARWIN_TRUE@	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 36 -p 36 -o $@
+@BUILD_DARWIN_TRUE@$(OSX_BACKGROUND_IMAGE)@2x.png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+@BUILD_DARWIN_TRUE@	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 72 -p 72 -o $@
+@BUILD_DARWIN_TRUE@$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE).png $(OSX_BACKGROUND_IMAGE)@2x.png
+@BUILD_DARWIN_TRUE@	tiffutil -cathidpicheck $^ -out $@
 
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@$(OSX_BACKGROUND_IMAGE).png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 36 -p 36 -o $@
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@$(OSX_BACKGROUND_IMAGE)@2x.png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 72 -p 72 -o $@
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE).png $(OSX_BACKGROUND_IMAGE)@2x.png
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@	tiffutil -cathidpicheck $^ -out $@
+@BUILD_DARWIN_TRUE@deploydir: $(OSX_DMG)
 
-@BUILD_DARWIN_TRUE@@TARGET_DARWIN_TRUE@deploydir: $(OSX_DMG)
+@BUILD_DARWIN_FALSE@$(APP_DIST_DIR)/Applications:
+@BUILD_DARWIN_FALSE@	@rm -f $@
+@BUILD_DARWIN_FALSE@	@cd $(@D); $(LN_S) /Applications $(@F)
 
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@$(APP_DIST_DIR)/Applications:
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@	@rm -f $@
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@	@cd $(@D); $(LN_S) /Applications $(@F)
+@BUILD_DARWIN_FALSE@$(APP_DIST_EXTRAS): $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/NWCCurrency-Qt
 
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@$(APP_DIST_EXTRAS): $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/KoloCryptoCoin-Qt
+@BUILD_DARWIN_FALSE@$(OSX_DMG): $(APP_DIST_EXTRAS)
+@BUILD_DARWIN_FALSE@	$(GENISOIMAGE) -no-cache-inodes -D -l -probe -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -apple -o $@ dist
 
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@$(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@	$(XORRISOFS) -D -l -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -o $@ $(APP_DIST_DIR) -- $(if $(SOURCE_DATE_EPOCH),-volume_date all_file_dates =$(SOURCE_DATE_EPOCH))
+@BUILD_DARWIN_FALSE@dpi%.$(OSX_BACKGROUND_IMAGE): contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+@BUILD_DARWIN_FALSE@	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d $* -p $* | $(IMAGEMAGICK_CONVERT) - $@
+@BUILD_DARWIN_FALSE@$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE_DPIFILES)
+@BUILD_DARWIN_FALSE@	$(MKDIR_P) $(@D)
+@BUILD_DARWIN_FALSE@	$(TIFFCP) -c none $(OSX_BACKGROUND_IMAGE_DPIFILES) $@
 
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@$(OSX_DMG): $(OSX_TEMP_ISO)
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@	$(DMG) dmg "$<" "$@"
+@BUILD_DARWIN_FALSE@$(APP_DIST_DIR)/.DS_Store: $(OSX_DSSTORE_GEN)
+@BUILD_DARWIN_FALSE@	$(PYTHON) $< "$@" "$(OSX_VOLNAME)"
 
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@dpi%.$(OSX_BACKGROUND_IMAGE): contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d $* -p $* | $(IMAGEMAGICK_CONVERT) - $@
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE_DPIFILES)
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@	$(MKDIR_P) $(@D)
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@	$(TIFFCP) -c none $(OSX_BACKGROUND_IMAGE_DPIFILES) $@
+@BUILD_DARWIN_FALSE@$(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/NWCCurrency-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGING)
+@BUILD_DARWIN_FALSE@	INSTALLNAMETOOL=$(INSTALLNAMETOOL)  OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -translations-dir=$(QT_TRANSLATION_DIR) -add-qt-tr $(OSX_QT_TRANSLATIONS) -verbose 2
 
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@$(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/KoloCryptoCoin-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGING)
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@	INSTALLNAMETOOL=$(INSTALLNAMETOOL) OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR)
-
-@BUILD_DARWIN_FALSE@@TARGET_DARWIN_TRUE@deploydir: $(APP_DIST_EXTRAS)
+@BUILD_DARWIN_FALSE@deploydir: $(APP_DIST_EXTRAS)
 
 @TARGET_DARWIN_TRUE@appbundle: $(OSX_APP_BUILT)
 @TARGET_DARWIN_TRUE@deploy: $(OSX_DMG)
+@TARGET_WINDOWS_TRUE@deploy: $(BITCOIN_WIN_INSTALLER)
 
 $(BITCOIN_QT_BIN): FORCE
 	$(MAKE) -C src qt/$(@F)
@@ -1284,73 +1267,46 @@ $(BITCOIND_BIN): FORCE
 $(BITCOIN_CLI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
-$(BITCOIN_TX_BIN): FORCE
-	$(MAKE) -C src $(@F)
-
 @USE_LCOV_TRUE@baseline.info:
 @USE_LCOV_TRUE@	$(LCOV) -c -i -d $(abs_builddir)/src -o $@
 
 @USE_LCOV_TRUE@baseline_filtered.info: baseline.info
-@USE_LCOV_TRUE@	$(LCOV) -r $< "/usr/include/*" -o $@
+@USE_LCOV_TRUE@	$(abs_builddir)/contrib/filter-lcov.py $(LCOV_FILTER_PATTERN) $< $@
+@USE_LCOV_TRUE@	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
-@USE_LCOV_TRUE@leveldb_baseline.info: baseline_filtered.info
-@USE_LCOV_TRUE@	$(LCOV) -c -i -d $(abs_builddir)/src/leveldb -b $(abs_builddir)/src/leveldb -o $@
-
-@USE_LCOV_TRUE@leveldb_baseline_filtered.info: leveldb_baseline.info
-@USE_LCOV_TRUE@	$(LCOV) -r $< "/usr/include/*" -o $@
-
-@USE_LCOV_TRUE@baseline_filtered_combined.info: leveldb_baseline_filtered.info baseline_filtered.info
-@USE_LCOV_TRUE@	$(LCOV) -a leveldb_baseline_filtered.info -a baseline_filtered.info -o $@
-
-@USE_LCOV_TRUE@test_bitcoin.info: baseline_filtered_combined.info
+@USE_LCOV_TRUE@test_nwccurrency.info: baseline_filtered.info
 @USE_LCOV_TRUE@	$(MAKE) -C src/ check
-@USE_LCOV_TRUE@	$(LCOV) -c -d $(abs_builddir)/src -t test_bitcoin -o $@
-@USE_LCOV_TRUE@	$(LCOV) -z -d $(abs_builddir)/src
-@USE_LCOV_TRUE@	$(LCOV) -z -d $(abs_builddir)/src/leveldb
+@USE_LCOV_TRUE@	$(LCOV) -c $(LCOV_OPTS) -d $(abs_builddir)/src -t test_nwccurrency -o $@
+@USE_LCOV_TRUE@	$(LCOV) -z $(LCOV_OPTS) -d $(abs_builddir)/src
 
-@USE_LCOV_TRUE@test_bitcoin_filtered.info: test_bitcoin.info
-@USE_LCOV_TRUE@	$(LCOV) -r $< "/usr/include/*" -o $@
+@USE_LCOV_TRUE@test_nwccurrency_filtered.info: test_nwccurrency.info
+@USE_LCOV_TRUE@	$(abs_builddir)/contrib/filter-lcov.py $(LCOV_FILTER_PATTERN) $< $@
+@USE_LCOV_TRUE@	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
-@USE_LCOV_TRUE@block_test.info: test_bitcoin_filtered.info
-@USE_LCOV_TRUE@	$(MKDIR_P) qa/tmp
-@USE_LCOV_TRUE@	-@TIMEOUT=15 qa/pull-tester/run-bitcoind-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool $(COMPARISON_TOOL_REORG_TESTS)
-@USE_LCOV_TRUE@	$(LCOV) -c -d $(abs_builddir)/src --t BitcoinJBlockTest -o $@
-@USE_LCOV_TRUE@	$(LCOV) -z -d $(abs_builddir)/src
-@USE_LCOV_TRUE@	$(LCOV) -z -d $(abs_builddir)/src/leveldb
+@USE_LCOV_TRUE@functional_test.info: test_nwccurrency_filtered.info
+@USE_LCOV_TRUE@	-@TIMEOUT=15 test/functional/test_runner.py $(EXTENDED_FUNCTIONAL_TESTS)
+@USE_LCOV_TRUE@	$(LCOV) -c $(LCOV_OPTS) -d $(abs_builddir)/src --t functional-tests -o $@
+@USE_LCOV_TRUE@	$(LCOV) -z $(LCOV_OPTS) -d $(abs_builddir)/src
 
-@USE_LCOV_TRUE@block_test_filtered.info: block_test.info
-@USE_LCOV_TRUE@	$(LCOV) -r $< "/usr/include/*" -o $@
+@USE_LCOV_TRUE@functional_test_filtered.info: functional_test.info
+@USE_LCOV_TRUE@	$(abs_builddir)/contrib/filter-lcov.py $(LCOV_FILTER_PATTERN) $< $@
+@USE_LCOV_TRUE@	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
-@USE_LCOV_TRUE@rpc_test.info: test_bitcoin_filtered.info
-@USE_LCOV_TRUE@	-@TIMEOUT=15 python qa/pull-tester/rpc-tests.py $(EXTENDED_RPC_TESTS)
-@USE_LCOV_TRUE@	$(LCOV) -c -d $(abs_builddir)/src --t rpc-tests -o $@
-@USE_LCOV_TRUE@	$(LCOV) -z -d $(abs_builddir)/src
-@USE_LCOV_TRUE@	$(LCOV) -z -d $(abs_builddir)/src/leveldb
+@USE_LCOV_TRUE@test_nwccurrency_coverage.info: baseline_filtered.info test_nwccurrency_filtered.info
+@USE_LCOV_TRUE@	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a test_nwccurrency_filtered.info -o $@
 
-@USE_LCOV_TRUE@rpc_test_filtered.info: rpc_test.info
-@USE_LCOV_TRUE@	$(LCOV) -r $< "/usr/include/*" -o $@
+@USE_LCOV_TRUE@total_coverage.info: test_nwccurrency_filtered.info functional_test_filtered.info
+@USE_LCOV_TRUE@	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a test_nwccurrency_filtered.info -a functional_test_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
 
-@USE_LCOV_TRUE@test_bitcoin_coverage.info: baseline_filtered_combined.info test_bitcoin_filtered.info
-@USE_LCOV_TRUE@	$(LCOV) -a baseline_filtered.info -a leveldb_baseline_filtered.info -a test_bitcoin_filtered.info -o $@
-
-@USE_LCOV_TRUE@total_coverage.info: baseline_filtered_combined.info test_bitcoin_filtered.info block_test_filtered.info rpc_test_filtered.info
-@USE_LCOV_TRUE@	$(LCOV) -a baseline_filtered.info -a leveldb_baseline_filtered.info -a test_bitcoin_filtered.info -a block_test_filtered.info -a rpc_test_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
-
-@USE_LCOV_TRUE@test_bitcoin.coverage/.dirstamp:  test_bitcoin_coverage.info
-@USE_LCOV_TRUE@	$(GENHTML) -s $< -o $(@D)
+@USE_LCOV_TRUE@test_nwccurrency.coverage/.dirstamp:  test_nwccurrency_coverage.info
+@USE_LCOV_TRUE@	$(GENHTML) -s $(LCOV_OPTS) $< -o $(@D)
 @USE_LCOV_TRUE@	@touch $@
 
 @USE_LCOV_TRUE@total.coverage/.dirstamp: total_coverage.info
-@USE_LCOV_TRUE@	$(GENHTML) -s $< -o $(@D)
+@USE_LCOV_TRUE@	$(GENHTML) -s $(LCOV_OPTS) $< -o $(@D)
 @USE_LCOV_TRUE@	@touch $@
 
-@USE_LCOV_TRUE@cov_fuzz: fuzz.coverage/.dirstamp
-
-@USE_LCOV_TRUE@cov: test_bitcoin.coverage/.dirstamp total.coverage/.dirstamp
-
-@USE_COMPARISON_TOOL_TRUE@check-local:
-@USE_COMPARISON_TOOL_TRUE@	$(MKDIR_P) qa/tmp
-@USE_COMPARISON_TOOL_TRUE@	@qa/pull-tester/run-bitcoind-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool $(COMPARISON_TOOL_REORG_TESTS) 2>&1
+@USE_LCOV_TRUE@cov: test_nwccurrency.coverage/.dirstamp total.coverage/.dirstamp
 
 .INTERMEDIATE: $(COVERAGE_INFO)
 
@@ -1367,17 +1323,8 @@ clean-docs:
 	rm -rf doc/doxygen
 
 clean-local: clean-docs
-	rm -rf coverage_percent.txt test_bitcoin.coverage/ total.coverage/ qa/tmp/ cache/ $(OSX_APP)
-	rm -rf test/functional/__pycache__ test/functional/test_framework/__pycache__ test/cache share/rpcauth/__pycache__ qa/pull-tester/__pycache__
-	rm -rf osx_volname dist/ dpi36.background.tiff dpi72.background.tiff
-
-test-security-check:
-@TARGET_DARWIN_TRUE@	$(AM_V_at) CC='$(CC)' $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_MACHO
-@TARGET_DARWIN_TRUE@	$(AM_V_at) CC='$(CC)' $(PYTHON) $(top_srcdir)/contrib/devtools/test-symbol-check.py TestSymbolChecks.test_MACHO
-@TARGET_WINDOWS_TRUE@	$(AM_V_at) CC='$(CC)' $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_PE
-@TARGET_WINDOWS_TRUE@	$(AM_V_at) CC='$(CC)' $(PYTHON) $(top_srcdir)/contrib/devtools/test-symbol-check.py TestSymbolChecks.test_PE
-@TARGET_LINUX_TRUE@	$(AM_V_at) CC='$(CC)' $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_ELF
-@TARGET_LINUX_TRUE@	$(AM_V_at) CC='$(CC)' CPPFILT='$(CPPFILT)' $(PYTHON) $(top_srcdir)/contrib/devtools/test-symbol-check.py TestSymbolChecks.test_ELF
+	rm -rf coverage_percent.txt test_nwccurrency.coverage/ total.coverage/ test/tmp/ cache/ $(OSX_APP)
+	rm -rf test/functional/__pycache__ test/functional/test_framework/__pycache__ test/cache share/rpcauth/__pycache__
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

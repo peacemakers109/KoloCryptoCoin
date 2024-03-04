@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <zmq/zmqabstractnotifier.h>
-#include <util.h>
+#include "zmqabstractnotifier.h"
+#include "util.h"
 
 
 CZMQAbstractNotifier::~CZMQAbstractNotifier()
@@ -17,6 +17,11 @@ bool CZMQAbstractNotifier::NotifyBlock(const CBlockIndex * /*CBlockIndex*/)
 }
 
 bool CZMQAbstractNotifier::NotifyTransaction(const CTransaction &/*transaction*/)
+{
+    return true;
+}
+
+bool CZMQAbstractNotifier::NotifyTransactionLock(const CTransaction &/*transaction*/)
 {
     return true;
 }

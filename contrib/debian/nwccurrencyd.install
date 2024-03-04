@@ -1,0 +1,3 @@
+usr/local/bin/nwccurrencyd usr/bin
+usr/local/bin/nwccurrency-cli usr/bin
+debian/examples/nwccurrency.conf etc/nwccurrency

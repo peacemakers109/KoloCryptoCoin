@@ -1,13 +1,17 @@
-// Copyright (c) 2013-2015 The Bitcoin Core developers
-// Distributed under the MIT software license, see the accompanying
+// Copyright (c) 2013-2014 The Bitcoin Core developers
+// Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+//
+// Unit tests for block.CheckBlock()
+//
+
+
+
 #include "clientversion.h"
-#include "consensus/validation.h"
-#include "main.h" // For CheckBlock
-#include "primitives/block.h"
-#include "test/test_bitcoin.h"
+#include "main.h"
 #include "utiltime.h"
+#include "test/test_nwccurrency.h"
 
 #include <cstdio>
 
@@ -57,8 +61,7 @@ BOOST_AUTO_TEST_CASE(May15)
 
         // After May 15'th, big blocks are OK:
         forkingBlock.nTime = tMay15; // Invalidates PoW
-        const CChainParams& chainparams = Params();
-        BOOST_CHECK(CheckBlock(forkingBlock, state, chainparams.GetConsensus(), false, false));
+        BOOST_CHECK(CheckBlock(forkingBlock, state, false, false));
     }
 
     SetMockTime(0);

@@ -2,13 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <zmq/zmqnotificationinterface.h>
-#include <zmq/zmqpublishnotifier.h>
+#include "zmqnotificationinterface.h"
+#include "zmqpublishnotifier.h"
 
-#include <version.h>
-#include <main.h>
-#include <streams.h>
-#include <util.h>
+#include "version.h"
+#include "main.h"
+#include "streams.h"
+#include "util.h"
 
 void zmqError(const char *str)
 {
@@ -31,14 +31,16 @@ CZMQNotificationInterface::~CZMQNotificationInterface()
 
 CZMQNotificationInterface* CZMQNotificationInterface::CreateWithArguments(const std::map<std::string, std::string> &args)
 {
-    CZMQNotificationInterface* notificationInterface = nullptr;
+    CZMQNotificationInterface* notificationInterface = NULL;
     std::map<std::string, CZMQNotifierFactory> factories;
     std::list<CZMQAbstractNotifier*> notifiers;
 
     factories["pubhashblock"] = CZMQAbstractNotifier::Create<CZMQPublishHashBlockNotifier>;
     factories["pubhashtx"] = CZMQAbstractNotifier::Create<CZMQPublishHashTransactionNotifier>;
+    factories["pubhashtxlock"] = CZMQAbstractNotifier::Create<CZMQPublishHashTransactionLockNotifier>;
     factories["pubrawblock"] = CZMQAbstractNotifier::Create<CZMQPublishRawBlockNotifier>;
     factories["pubrawtx"] = CZMQAbstractNotifier::Create<CZMQPublishRawTransactionNotifier>;
+    factories["pubrawtxlock"] = CZMQAbstractNotifier::Create<CZMQPublishRawTransactionLockNotifier>;
 
     for (std::map<std::string, CZMQNotifierFactory>::const_iterator i=factories.begin(); i!=factories.end(); ++i)
     {
@@ -62,7 +64,7 @@ CZMQNotificationInterface* CZMQNotificationInterface::CreateWithArguments(const 
         if (!notificationInterface->Initialize())
         {
             delete notificationInterface;
-            notificationInterface = nullptr;
+            notificationInterface = NULL;
         }
     }
 
@@ -141,11 +143,10 @@ void CZMQNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindex)
     }
 }
 
-void CZMQNotificationInterface::SyncTransaction(const CTransaction& tx, const CBlockIndex* pindex, const CBlock* pblock, const bool fConnect)
+void CZMQNotificationInterface::SyncTransaction(const CTransaction &tx, const CBlock *pblock)
 {
     for (std::list<CZMQAbstractNotifier*>::iterator i = notifiers.begin(); i!=notifiers.end(); )
     {
-
         CZMQAbstractNotifier *notifier = *i;
         if (notifier->NotifyTransaction(tx))
         {
@@ -153,7 +154,23 @@ void CZMQNotificationInterface::SyncTransaction(const CTransaction& tx, const CB
         }
         else
         {
+            notifier->Shutdown();
+            i = notifiers.erase(i);
+        }
+    }
+}
 
+void CZMQNotificationInterface::NotifyTransactionLock(const CTransaction &tx)
+{
+    for (std::list<CZMQAbstractNotifier*>::iterator i = notifiers.begin(); i!=notifiers.end(); )
+    {
+        CZMQAbstractNotifier *notifier = *i;
+        if (notifier->NotifyTransactionLock(tx))
+        {
+            i++;
+        }
+        else
+        {
             notifier->Shutdown();
             i = notifiers.erase(i);
         }

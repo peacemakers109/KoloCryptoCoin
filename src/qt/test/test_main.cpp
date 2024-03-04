@@ -1,17 +1,13 @@
-// Copyright (c) 2009-2016 The Bitcoin Core developers
+// Copyright (c) 2009-2014 The Bitcoin developers
+// Copyright (c) 2014-2015 The Dash developers
+// Copyright (c) 2015-2018 The PIVX developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
+#include "config/nwccurrency-config.h"
 #endif
 
-#include "bitcoinaddressvalidatortests.h"
-#include "chainparams.h"
-#include "compattests.h"
-#include "guiutiltests.h"
-#include "key.h"
-#include "rpcnestedtests.h"
 #include "util.h"
 #include "uritests.h"
 
@@ -25,12 +21,18 @@
 
 #include <openssl/ssl.h>
 
-#if defined(QT_STATICPLUGIN) && QT_VERSION < 0x050000
+#if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
-Q_IMPORT_PLUGIN(qcncodecs)
-Q_IMPORT_PLUGIN(qjpcodecs)
-Q_IMPORT_PLUGIN(qtwcodecs)
-Q_IMPORT_PLUGIN(qkrcodecs)
+#if defined(QT_QPA_PLATFORM_MINIMAL)
+Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin);
+#endif
+#if defined(QT_QPA_PLATFORM_XCB)
+Q_IMPORT_PLUGIN(QXcbIntegrationPlugin);
+#elif defined(QT_QPA_PLATFORM_WINDOWS)
+Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
+#elif defined(QT_QPA_PLATFORM_COCOA)
+Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
+#endif
 #endif
 
 extern void noui_connect();
@@ -38,18 +40,13 @@ extern void noui_connect();
 // This is all you need to run all the tests
 int main(int argc, char *argv[])
 {
-    ECC_Start();
     SetupEnvironment();
-    SetupNetworking();
-    SelectParams(CBaseChainParams::MAIN);
-    noui_connect();
-
     bool fInvalid = false;
 
     // Don't remove this, it's needed to access
     // QCoreApplication:: in the tests
     QCoreApplication app(argc, argv);
-    app.setApplicationName("KoloCryptoCoin-Qt-test");
+    app.setApplicationName("NWCCurrency-Qt-test");
 
     SSL_library_init();
 
@@ -61,17 +58,6 @@ int main(int argc, char *argv[])
     if (QTest::qExec(&test2) != 0)
         fInvalid = true;
 #endif
-    RPCNestedTests test3;
-    if (QTest::qExec(&test3) != 0)
-        fInvalid = true;
-    CompatTests test4;
-    if (QTest::qExec(&test4) != 0)
-        fInvalid = true;
-    GUIUtilTests test5;
-    if (QTest::qExec(&test5) != 0) fInvalid = true;
-    BitcoinAddressValidatorTests test6;
-    if (QTest::qExec(&test6) != 0) fInvalid = true;
 
-    ECC_Stop();
     return fInvalid;
 }

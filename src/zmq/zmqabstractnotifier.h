@@ -5,7 +5,7 @@
 #ifndef BITCOIN_ZMQ_ZMQABSTRACTNOTIFIER_H
 #define BITCOIN_ZMQ_ZMQABSTRACTNOTIFIER_H
 
-#include <zmq/zmqconfig.h>
+#include "zmqconfig.h"
 
 class CBlockIndex;
 class CZMQAbstractNotifier;
@@ -34,6 +34,7 @@ public:
 
     virtual bool NotifyBlock(const CBlockIndex *pindex);
     virtual bool NotifyTransaction(const CTransaction &transaction);
+    virtual bool NotifyTransactionLock(const CTransaction &transaction);
 
 protected:
     void *psocket;

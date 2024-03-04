@@ -1,4 +1,5 @@
 // Copyright (c) 2015 The Bitcoin Core developers
+// Copyright (c) 2017-2018 The PIVX developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,10 +8,8 @@
 #include "reverselock.h"
 
 #include <assert.h>
-#include <boost/bind/bind.hpp>
+#include <boost/bind.hpp>
 #include <utility>
-
-using namespace boost::placeholders;
 
 CScheduler::CScheduler() : nThreadsServicingQueue(0), stopRequested(false), stopWhenEmpty(false)
 {
@@ -56,10 +55,9 @@ void CScheduler::serviceQueue()
 #else
             // Some boost versions have a conflicting overload of wait_until that returns void.
             // Explicitly use a template here to avoid hitting that overload.
-            while (!shouldStop() && !taskQueue.empty()) {
-                boost::chrono::system_clock::time_point timeToWaitFor = taskQueue.begin()->first;
-                if (newTaskScheduled.wait_until<>(lock, timeToWaitFor) == boost::cv_status::timeout)
-                    break; // Exit loop after timeout, it means we reached the time of the event
+            while (!shouldStop() && !taskQueue.empty() &&
+                   newTaskScheduled.wait_until<>(lock, taskQueue.begin()->first) != boost::cv_status::timeout) {
+                // Keep waiting until timeout
             }
 #endif
             // If there are multiple threads, the queue can empty while we're waiting (another
